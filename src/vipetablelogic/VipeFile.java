@@ -6,6 +6,7 @@
 package vipetablelogic;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -16,12 +17,13 @@ import java.util.ArrayList;
 When Displayed in the directory, a VipeFile will show a color and the fileID.
 To serialize instance of the VipeFile, "fileID" will be declared static.
 */
-public class VipeFile {
-    ArrayList<Chunk> chunks;
-    int fileSize;
-    String fileName;
-    Color sectorColor;
-    int fileID;
+//Defines what a file is
+public class VipeFile implements Serializable{
+    ArrayList<Chunk> chunks; //grid spaces
+    int fileSize; //size of the file
+    String fileName; //name of the file
+    Color sectorColor; //determines the color
+    int fileID; //id of the file
     
     public VipeFile(int fs, String fn, Color c, int fid) {
         fileSize = fs;
@@ -31,39 +33,43 @@ public class VipeFile {
         //serialize fileID
         fileID = fid;
     } 
-    
+    //gets chunks from the arraylist
     public ArrayList<Chunk> getChunks() {
         return chunks;
     }
-
+    //set the chunks
     public void setChunks(ArrayList<Chunk> chunks) {
         this.chunks = chunks;
     }
-
+    //gets a single chunk
+    public Chunk getChunk(int ind) {
+        return chunks.get(ind);
+    }
+    //gets the size fo teh file
     public int getFileSize() {
         return fileSize;
     }
-
+    //sets the size of the file
     public void setFileSize(int fileSize) {
         this.fileSize = fileSize;
     }
-
+    //returns the name of the file
     public String getFileName() {
         return fileName;
     }
-
+    //set the name of the file
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-
+    //gets the color of the sector
     public Color getSectorColor() {
         return sectorColor;
     }
-
+    //sets the color of the sector
     public void setSectorColor(Color sectorColor) {
         this.sectorColor = sectorColor;
     }
-
+    //gets the id of the file
     public int getFileID() {
         return fileID;
     }
@@ -81,7 +87,7 @@ public class VipeFile {
      Example:
      [0-6] [12-18] [39-40]
 
-     */
+     */ //unneeded toString but kept for reference
     @Override
     public String toString() {
         String output = "";

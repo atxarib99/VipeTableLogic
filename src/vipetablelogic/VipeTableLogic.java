@@ -16,33 +16,17 @@ import java.util.Scanner;
 public class VipeTableLogic {
 
     Directory dir;
-    Scanner keyboard;
     int[] sender = new int[600];
     public VipeTableLogic()
     {
-        this.keyboard = new Scanner(System.in);
-        dir = new Directory(new ArrayList<>(), sender);
-        while (true) {
-            System.out.println("VipeTable Functions:");
-            System.out.println("\t 1) import Data");
-            System.out.println("\t 2) add file");
-            System.out.println("\t 3) delete file");
-            System.out.println("\t 4) edit file");
-            String choice = keyboard.next();
-            switch (new Integer(choice)) {
-                case 1: importData(); break;
-                case 2: writeData(); break;
-                case 3: deleteData(); break;
-                case 4: editData(); break;
-            }
-        }
+        dir = new Directory();
     }
     //returns a String representation of a file’s chunks
-    private String getChunkString(int fileID) {
+    public String getChunkString(int fileID) {
         return "";
     }
     //returns the total number of unmarked sectors
-    private int getAvailableSize() {
+    public int getAvailableSize() {
         int count = 0;
         for (int i = 0; i < dir.sectors.length; i++) {
             if(dir.sectors[i] == 0)
@@ -78,14 +62,17 @@ public class VipeTableLogic {
         VipeFile local = file;
         if(file.getFileSize() > 0 && getAvailableSize() > local.getFileSize()) {
             int i = 0;
+            int count = 0;
             while (i < local.getFileSize()) {
                 Chunk c = getNextChunk(local);
-                int startIndex = c.getStartIndex();
-                int endIndex = c.getEndIndex();
-                while (startIndex <= endIndex && i < local.getFileSize()) {
-                    dir.sectors[startIndex] = local.getFileID();
-                    i++;
-                    startIndex++;
+                while(count < dir.sectors.length && i < local.getFileSize()) {
+                    if(dir.sectors[count] == 0){
+                        i++;
+                        dir.sectors[count] = local.getFileID();
+                        count++;
+                    }
+                    else
+                        count++;
                 }
                 local.chunks.add(c);
             }
@@ -96,7 +83,21 @@ public class VipeTableLogic {
     private void writeGrid() {
         
     }
-
+    //gets the color based on id
+        private Color getColor(int id) {
+        Color color;
+        int useable = id%6;
+        switch (useable) {
+            case 1 : color = Color.red; break;
+            case 2 : color = Color.green; break;
+            case 3 : color = Color.blue; break;
+            case 4 : color = Color.yellow; break;
+            case 5 : color = Color.magenta; break;
+            case 6 : color = Color.orange; break;
+            default: color = Color.white;
+        }
+        return color;
+    }
     //removes the file from the directory and calls writeGrid()
     private void deleteFile(int fileID) {
         for (int i = 0; i < dir.sectors.length; i++) {
@@ -141,44 +142,38 @@ public class VipeTableLogic {
         
     }
 
-    private void writeData() {
-        keyboard = new Scanner(System.in);
-        System.out.println("HEY YOU THERE! WHAT DO YOU WANT TO NAME YOUR FILE? HUH?");
-        String fileName = keyboard.next();
-        System.out.println("HOW BIG YA WANT IT?");
-        int fileSize = keyboard.nextInt();
-        Color temp = new Color(255, 255, 255);
-        System.out.println("GIVE THE FILE AN ID WILL YE?!");
-        int fileID = keyboard.nextInt();
-        while(!isIdAvailable(fileID)) {
-            System.out.println("THAT ONE THERE IS TAKEN! TRY AGAIN WILL YA");
-            fileID = keyboard.nextInt();
-        }
+    public void writeData(String fn, int fs) {
+        String fileName = "";
+        int fileSize = 0;
+        int fileID = getAvailableID();
+        Color temp = getColor(fileID);
         VipeFile sendable = new VipeFile(fileSize, fileName, temp, fileID);
         writeFile(sendable);
         System.out.println(dir);
     }
 
-    private void deleteData() {
-        keyboard = new Scanner(System.in);
-        System.out.println("WHAT ID DO YE WANT TO DELETE THIS TIME?");
-        int fileID = keyboard.nextInt();
+    public void deleteData(int id) {
+        int fileID = id;
         deleteFile(fileID);
         System.out.println(dir);
     }
 
-    private void editData() {
-        keyboard = new Scanner(System.in);
-        System.out.println("WHAT FILE ID DO YE WANT TO CHANGE");
-        int fileID = keyboard.nextInt();
-        System.out.println("WHAT THE SIZE DIFFERENCE? REMEMBER IT CAN BE NEGATIVE TO MAKE THE FILE SMALLER.");
-        int sizeChange = keyboard.nextInt();
-        while(getFileFromID(fileID).fileSize + sizeChange < 1) {
-            System.out.println("YER FILE CANT BE THAT SMALL BHAHAHA! TRY AGAIN.");
-            sizeChange = keyboard.nextInt();
-        }
+    public void editData(int id, int change) {
+        int sizeChange = change;
+        int fileID = id;
         editFile(fileID, sizeChange);
         dir.toString();
+    }
+    private int getAvailableID() {
+        int avail = 1;
+        int i = 0;
+        while(avail == 1) {
+            if(avail == dir.files.get(i).getFileID())
+                avail++;
+            i++;
+        }
+        return avail;
+        
     }
 
 }
